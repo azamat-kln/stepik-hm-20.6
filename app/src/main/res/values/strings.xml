@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">RecyclerViewHomeTask</string>
+    <string name="amount_tenge">1 500 000</string>
+    <string name="tenge_kz">Тенге, Казахстан</string>
+</resources>
