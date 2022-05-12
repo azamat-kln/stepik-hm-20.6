@@ -1,10 +1,9 @@
-package com.example.recyclerviewhometask
+package com.example.recyclerviewhometask.recyclerview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.recyclerviewhometask.model.AddButton
-import com.example.recyclerviewhometask.model.Currency
+import com.example.recyclerviewhometask.R
 import com.example.recyclerviewhometask.model.ItemViewHolder
 
 class MyAdapter(
@@ -30,14 +29,14 @@ class MyAdapter(
 
     override fun getItemViewType(position: Int): Int =
         when (currencyLists[position]) {
-            is AddButton -> R.layout.add_button
+            is ItemViewHolder.AddButton -> R.layout.add_button
             else -> R.layout.item_currency
         }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is CurrencyViewHolder -> holder.bind(currencyLists[position] as Currency)
-            is ButtonViewHolder -> holder.showToast()
+            is CurrencyViewHolder -> holder.bind(currencyLists[position] as ItemViewHolder.Currency)
+            is ButtonViewHolder -> holder.bind(currencyLists[position] as ItemViewHolder.AddButton)
         }
     }
 

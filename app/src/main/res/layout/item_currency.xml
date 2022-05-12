@@ -23,6 +23,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
+            android:inputType="number"
             android:layout_height="match_parent"
             android:background="@drawable/rectangle_edit_text" />
 
@@ -61,6 +62,6 @@
         android:gravity="center_vertical"
         android:lineSpacingExtra="-1sp"
         android:text="dollar, USA"
-        android:textAppearance="@style/tenge_style" />
+        android:textAppearance="@style/text_style" />
 
 </RelativeLayout>

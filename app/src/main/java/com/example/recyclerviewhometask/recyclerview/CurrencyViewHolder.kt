@@ -1,10 +1,11 @@
-package com.example.recyclerviewhometask
+package com.example.recyclerviewhometask.recyclerview
 
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.recyclerviewhometask.model.Currency
+import com.example.recyclerviewhometask.R
+import com.example.recyclerviewhometask.model.ItemViewHolder
 import com.google.android.material.textfield.TextInputLayout
 
 class CurrencyViewHolder(view: View, private val toastLambda: (String) -> Unit) :
@@ -13,7 +14,7 @@ class CurrencyViewHolder(view: View, private val toastLambda: (String) -> Unit) 
     private val flagIV: ImageView = view.findViewById(R.id.flag_IV)
     private val inputCurrency: TextInputLayout = view.findViewById(R.id.text_input_currency)
 
-    fun bind(currency: Currency) {
+    fun bind(currency: ItemViewHolder.Currency) {
         currencyTV.text = currency.currency
         flagIV.setImageResource(currency.flagDrawableRes)
         inputCurrency.editText?.setText(currency.amount.toString())
