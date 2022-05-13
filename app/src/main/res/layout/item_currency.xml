@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -14,7 +16,8 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/text_input_currency"
-        android:layout_width="307dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="290dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -22,34 +25,32 @@
         android:layout_marginTop="26dp">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/amount_input_edit_text"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rectangle_edit_text"
             android:inputType="number"
-            android:layout_height="match_parent"
-            android:background="@drawable/rectangle_edit_text" />
+            tools:hint="11" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <View
-        android:id="@+id/rectangle_kz_flag"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:layout_alignParentStart="true"
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="341dp"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="30dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/rectangle_kz_flag" />
+        android:layout_marginEnd="4dp">
 
-    <ImageView
-        android:id="@+id/flag_IV"
-        android:layout_width="52dp"
-        android:layout_height="28.55dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="341dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="12dp"
-        android:src="@drawable/ic_launcher_background" />
+        <ImageView
+            android:id="@+id/flag_IV"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_launcher_background" />
+
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/currency_tv"

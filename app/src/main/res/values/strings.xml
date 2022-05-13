@@ -3,4 +3,5 @@
     <string name="amount_tenge">1 500 000</string>
     <string name="tenge_kz">Тенге, Казахстан</string>
     <string name="add_text">Добавить</string>
+    <string name="choose_flag">Выбрать флаг</string>
 </resources>

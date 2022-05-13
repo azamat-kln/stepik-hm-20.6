@@ -8,7 +8,7 @@ import com.example.recyclerviewhometask.R
 import com.example.recyclerviewhometask.model.ItemViewHolder
 import com.google.android.material.textfield.TextInputLayout
 
-class CurrencyViewHolder(view: View, private val toastLambda: (String) -> Unit) :
+class CurrencyViewHolder(view: View) :
     RecyclerView.ViewHolder(view) {
     private val currencyTV: TextView = view.findViewById(R.id.currency_tv)
     private val flagIV: ImageView = view.findViewById(R.id.flag_IV)
@@ -18,9 +18,6 @@ class CurrencyViewHolder(view: View, private val toastLambda: (String) -> Unit) 
         currencyTV.text = currency.currency
         flagIV.setImageResource(currency.flagDrawableRes)
         inputCurrency.editText?.setText(currency.amount.toString())
-        flagIV.setOnClickListener {
-            toastLambda(currency.currency)
-        }
     }
 
 }

@@ -37,8 +37,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_input_ET"
                 android:layout_width="match_parent"
-                android:inputType="number"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:inputType="number" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -94,6 +94,9 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:layoutAnimation="@anim/layout_animation"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
