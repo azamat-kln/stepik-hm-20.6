@@ -10,7 +10,8 @@ import com.example.recyclerviewhometask.model.ItemViewHolder
 class ButtonViewHolder(
     view: View,
     private val addCurrency: (ItemViewHolder.Currency) -> Unit,
-    private val scrollLambda: () -> Unit
+    private val scrollToEnd: () -> Unit,
+    private val openFragment: () -> Unit
 ) :
     RecyclerView.ViewHolder(view) {
 
@@ -24,7 +25,8 @@ class ButtonViewHolder(
         addTextView.setOnClickListener {
             val currencyConst = ItemViewHolder.Currency(400, "KZ", R.drawable.kz_flag)
             addCurrency(currencyConst)
-            scrollLambda()
+            scrollToEnd()
+            // openFragment()
         }
     }
 

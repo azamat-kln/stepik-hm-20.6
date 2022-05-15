@@ -4,4 +4,6 @@
     <string name="tenge_kz">Тенге, Казахстан</string>
     <string name="add_text">Добавить</string>
     <string name="choose_flag">Выбрать флаг</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

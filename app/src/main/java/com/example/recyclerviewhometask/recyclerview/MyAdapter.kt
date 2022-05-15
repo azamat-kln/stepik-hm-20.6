@@ -1,15 +1,21 @@
 package com.example.recyclerviewhometask.recyclerview
 
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recyclerviewhometask.R
+import com.example.recyclerviewhometask.dragdrop.ItemTouchDelegate
 import com.example.recyclerviewhometask.model.ItemViewHolder
 import java.util.*
 
 class MyAdapter(
+    private val touchDelegateInterface: ItemTouchDelegate,
     private val addLambda: (ItemViewHolder.Currency) -> Unit,
-    private val scrollLambda: () -> Unit
+    private val scrollLambda: () -> Unit,
+    private val openFragment: () -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -21,12 +27,25 @@ class MyAdapter(
         return when (viewType) {
             R.layout.add_button -> {
                 val view = inflater.inflate(R.layout.add_button, parent, false)
-                ButtonViewHolder(view, addLambda, scrollLambda)
+                ButtonViewHolder(view, addLambda, scrollLambda, openFragment)
             }
-            else -> CurrencyViewHolder(
-                inflater.inflate(R.layout.item_currency, parent, false)
-            )
+            else -> {
+                val currencyViewHolder =
+                    CurrencyViewHolder(inflater.inflate(R.layout.item_currency, parent, false))
+                onItemDrag(currencyViewHolder)
+                currencyViewHolder
+            }
         }
+    }
+
+    private fun onItemDrag(currencyViewHolder: CurrencyViewHolder) {
+        currencyViewHolder.itemView.findViewById<ImageView>(R.id.flag_IV)
+            .setOnTouchListener { _, motionEvent ->
+                if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
+                    touchDelegateInterface.startDragging(currencyViewHolder)
+                }
+                return@setOnTouchListener true
+            }
     }
 
     override fun getItemViewType(position: Int): Int =
@@ -58,5 +77,32 @@ class MyAdapter(
     fun deleteItem(adapterPosition: Int) {
         itemLists.removeAt(adapterPosition)
         notifyDataSetChanged()
+    }
+
+    fun moveItem(from: Int, to: Int) {
+        val fromList = itemLists[from]
+        itemLists.removeAt(from)
+        if (to < from) {
+            itemLists.add(to, fromList)
+        } else {
+            itemLists.add(to - 1, fromList)
+        }
+    }
+
+    // helper class to calculate differences between two lists
+    class MyDiffUtilClass(var oldList: List<ItemViewHolder>, var newList: List<ItemViewHolder>) :
+        DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            // check id
+            return false
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+            oldList[oldItemPosition] == newList[newItemPosition]
     }
 }

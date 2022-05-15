@@ -2,16 +2,20 @@ package com.example.recyclerviewhometask
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.LinearSmoothScroller
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
+import androidx.recyclerview.widget.*
+import com.example.recyclerviewhometask.dragdrop.ItemTouchDelegate
+import com.example.recyclerviewhometask.dragdrop.MyDragDrop
 import com.example.recyclerviewhometask.model.ItemViewHolder
 import com.example.recyclerviewhometask.recyclerview.MyAdapter
+import com.example.recyclerviewhometask.swipe.LeftSwiped
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ItemTouchDelegate {
 
+    private var myRecyclerView: RecyclerView? = null
     private var adapterItems: MyAdapter? = null
+    private var snapPosition = RecyclerView.NO_POSITION
+    private var dragDropHelper: ItemTouchHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,14 +25,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupAdapter() {
-        val addBtnLambda: (ItemViewHolder.Currency) -> Unit = { currency: ItemViewHolder.Currency ->
+        val addCurrencyLambda: (ItemViewHolder.Currency) -> Unit = { currency: ItemViewHolder.Currency ->
             adapterItems?.addCurrency(currency)
+        }
+
+        val openFragment: () -> Unit = {
+            Toast.makeText(this, "btn clicked", Toast.LENGTH_SHORT).show()
         }
 
         val myLayoutManager =
             LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
 
-        val scrollLambda = {
+        val scrollLambda: () -> Unit = {
             val smoothScroller = object : LinearSmoothScroller(this) {
                 override fun getVerticalSnapPreference(): Int = LinearSmoothScroller.SNAP_TO_START
             }
@@ -36,35 +44,45 @@ class MainActivity : AppCompatActivity() {
             myLayoutManager.startSmoothScroll(smoothScroller)
         }
 
-        adapterItems = MyAdapter(addBtnLambda, scrollLambda)
-        val myRecyclerView = findViewById<RecyclerView>(R.id.recycler_view)
+        adapterItems = MyAdapter(this, addCurrencyLambda, scrollLambda, openFragment)
+        myRecyclerView = findViewById(R.id.recycler_view)
 
-        myRecyclerView.apply {
+        myRecyclerView?.apply {
             layoutManager = myLayoutManager
             adapter = adapterItems
         }
 
-        ItemTouchHelper(returnItemTouch()).attachToRecyclerView(myRecyclerView)
+        // set left swipe
+        ItemTouchHelper(LeftSwiped(adapterItems)).attachToRecyclerView(myRecyclerView)
+
+        // set drag and drop with MyDragDrop class
+        dragDropHelper = ItemTouchHelper(MyDragDrop())
+        dragDropHelper?.attachToRecyclerView(myRecyclerView)
 
         adapterItems?.setItems(Data.itemLists)
+        setupSnapping(myLayoutManager)
     }
 
-    private fun returnItemTouch(): ItemTouchHelper.SimpleCallback {
-        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0,
-            ItemTouchHelper.LEFT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
+    private fun setupSnapping(myLayoutManager: LinearLayoutManager) {
+        val snapHelper = PagerSnapHelper()
+        snapHelper.attachToRecyclerView(myRecyclerView)
+        myRecyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                snapHelper.findSnapView(myLayoutManager)?.let {
+                    val position = myLayoutManager.getPosition(it)
+                    if (snapPosition != position) {
+                        snapPosition = position
+                        // invoke some callback
+                    }
+                }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                adapterItems?.deleteItem(viewHolder.adapterPosition)
             }
-        }
-        return itemTouchHelperCallback
+        })
+    }
+
+    override fun startDragging(viewHolder: RecyclerView.ViewHolder) {
+        dragDropHelper?.startDrag(viewHolder)
     }
 
 }

@@ -10,7 +10,6 @@
         android:id="@+id/linear_layout"
         android:layout_width="411dp"
         android:layout_height="316dp"
-        android:layout_marginTop="393dp"
         android:background="#00000000"
         android:orientation="vertical">
 

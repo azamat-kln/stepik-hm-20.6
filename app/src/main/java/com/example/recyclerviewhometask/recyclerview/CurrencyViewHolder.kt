@@ -10,6 +10,7 @@ import com.google.android.material.textfield.TextInputLayout
 
 class CurrencyViewHolder(view: View) :
     RecyclerView.ViewHolder(view) {
+    
     private val currencyTV: TextView = view.findViewById(R.id.currency_tv)
     private val flagIV: ImageView = view.findViewById(R.id.flag_IV)
     private val inputCurrency: TextInputLayout = view.findViewById(R.id.text_input_currency)
