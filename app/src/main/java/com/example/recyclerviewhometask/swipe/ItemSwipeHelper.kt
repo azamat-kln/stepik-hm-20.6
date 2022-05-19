@@ -2,10 +2,12 @@ package com.example.recyclerviewhometask.swipe
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.recyclerviewhometask.recyclerview.ButtonViewHolder
 import com.example.recyclerviewhometask.recyclerview.MyAdapter
 
 class LeftSwiped(private val adapter: MyAdapter?) : ItemTouchHelper.SimpleCallback(
-    0, ItemTouchHelper.LEFT) {
+    0, ItemTouchHelper.LEFT
+) {
 
     override fun onMove(
         recyclerView: RecyclerView,
@@ -16,7 +18,14 @@ class LeftSwiped(private val adapter: MyAdapter?) : ItemTouchHelper.SimpleCallba
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        adapter?.deleteItem(viewHolder.adapterPosition)
+        adapter?.delete(viewHolder.adapterPosition)
     }
 
+    override fun getSwipeDirs(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder
+    ): Int {
+        if (viewHolder is ButtonViewHolder) return 0
+        return super.getSwipeDirs(recyclerView, viewHolder)
+    }
 }

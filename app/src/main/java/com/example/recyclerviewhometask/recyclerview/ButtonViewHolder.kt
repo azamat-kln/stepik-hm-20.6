@@ -5,25 +5,24 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recyclerviewhometask.R
-import com.example.recyclerviewhometask.model.ItemViewHolder
+import com.example.recyclerviewhometask.model.Item
 
 class ButtonViewHolder(
     view: View,
-    private val addCurrency: (ItemViewHolder.Currency) -> Unit,
-    private val scrollToEnd: () -> Unit,
-    private val openFragment: () -> Unit
+    private val addCurrency: (Item.Currency) -> Unit,
+    private val scrollToEnd: () -> Unit
 ) :
     RecyclerView.ViewHolder(view) {
 
     private val plusImage = view.findViewById<ImageView>(R.id.plus_image_view)
     private val addTextView = view.findViewById<TextView>(R.id.add_text_view)
 
-    fun bind(addButton: ItemViewHolder.AddButton) {
+    fun bind(addButton: Item.AddButton) {
         addTextView.text = addButton.text
         plusImage.setImageResource(addButton.imageRes)
 
         addTextView.setOnClickListener {
-            val currencyConst = ItemViewHolder.Currency(400, "KZ", R.drawable.kz_flag)
+            val currencyConst = Item.Currency(400, "KZ", R.drawable.kz_flag)
             addCurrency(currencyConst)
             scrollToEnd()
             // openFragment()

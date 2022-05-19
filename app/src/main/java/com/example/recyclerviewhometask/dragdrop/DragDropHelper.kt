@@ -3,9 +3,10 @@ package com.example.recyclerviewhometask.dragdrop
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
+import com.example.recyclerviewhometask.recyclerview.ButtonViewHolder
 import com.example.recyclerviewhometask.recyclerview.MyAdapter
 
-class MyDragDrop : ItemTouchHelper.SimpleCallback(UP or DOWN or START or END, 0) {
+class DragDropHelper : ItemTouchHelper.SimpleCallback(UP or DOWN or START or END, 0) {
 
     override fun onMove(
         recyclerView: RecyclerView,
@@ -15,6 +16,9 @@ class MyDragDrop : ItemTouchHelper.SimpleCallback(UP or DOWN or START or END, 0)
         val adapter = recyclerView.adapter as MyAdapter
         val from = viewHolder.adapterPosition
         val to = target.adapterPosition
+
+        if (viewHolder is ButtonViewHolder) return false
+
         adapter.moveItem(from, to)
         adapter.notifyItemMoved(from, to)
         return true

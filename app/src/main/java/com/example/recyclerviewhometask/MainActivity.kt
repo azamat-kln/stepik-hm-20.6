@@ -2,11 +2,12 @@ package com.example.recyclerviewhometask
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.view.Menu
+import android.view.MenuItem
 import androidx.recyclerview.widget.*
 import com.example.recyclerviewhometask.dragdrop.ItemTouchDelegate
-import com.example.recyclerviewhometask.dragdrop.MyDragDrop
-import com.example.recyclerviewhometask.model.ItemViewHolder
+import com.example.recyclerviewhometask.dragdrop.DragDropHelper
+import com.example.recyclerviewhometask.model.Item
 import com.example.recyclerviewhometask.recyclerview.MyAdapter
 import com.example.recyclerviewhometask.swipe.LeftSwiped
 
@@ -16,27 +17,26 @@ class MainActivity : AppCompatActivity(), ItemTouchDelegate {
     private var adapterItems: MyAdapter? = null
     private var snapPosition = RecyclerView.NO_POSITION
     private var dragDropHelper: ItemTouchHelper? = null
+    private var chosenIndex: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setSupportActionBar(findViewById(R.id.toolbar))
         setupAdapter()
     }
 
     private fun setupAdapter() {
-        val addCurrencyLambda: (ItemViewHolder.Currency) -> Unit = { currency: ItemViewHolder.Currency ->
-            adapterItems?.addCurrency(currency)
-        }
-
-        val openFragment: () -> Unit = {
-            Toast.makeText(this, "btn clicked", Toast.LENGTH_SHORT).show()
-        }
+        val addCurrency: (Item.Currency) -> Unit =
+            { currency: Item.Currency ->
+                adapterItems?.add(currency, chosenIndex)
+            }
 
         val myLayoutManager =
             LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
 
-        val scrollLambda: () -> Unit = {
+        val scrollToEnd: () -> Unit = {
             val smoothScroller = object : LinearSmoothScroller(this) {
                 override fun getVerticalSnapPreference(): Int = LinearSmoothScroller.SNAP_TO_START
             }
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), ItemTouchDelegate {
             myLayoutManager.startSmoothScroll(smoothScroller)
         }
 
-        adapterItems = MyAdapter(this, addCurrencyLambda, scrollLambda, openFragment)
+        adapterItems = MyAdapter(this, addCurrency, scrollToEnd)
         myRecyclerView = findViewById(R.id.recycler_view)
 
         myRecyclerView?.apply {
@@ -52,15 +52,19 @@ class MainActivity : AppCompatActivity(), ItemTouchDelegate {
             adapter = adapterItems
         }
 
+        setupSwipeAndDragDrop()
+
+        adapterItems?.setItems(Data.elements)
+        setupSnapping(myLayoutManager)
+    }
+
+    private fun setupSwipeAndDragDrop() {
         // set left swipe
         ItemTouchHelper(LeftSwiped(adapterItems)).attachToRecyclerView(myRecyclerView)
 
         // set drag and drop with MyDragDrop class
-        dragDropHelper = ItemTouchHelper(MyDragDrop())
+        dragDropHelper = ItemTouchHelper(DragDropHelper())
         dragDropHelper?.attachToRecyclerView(myRecyclerView)
-
-        adapterItems?.setItems(Data.itemLists)
-        setupSnapping(myLayoutManager)
     }
 
     private fun setupSnapping(myLayoutManager: LinearLayoutManager) {
@@ -85,4 +89,38 @@ class MainActivity : AppCompatActivity(), ItemTouchDelegate {
         dragDropHelper?.startDrag(viewHolder)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val chosenItemId = when (chosenIndex) {
+            0 -> R.id.sort_by_alphabet
+            1 -> R.id.sort_by_cost
+            else -> 0
+        }
+        menu?.findItem(chosenItemId)?.isChecked = true
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.sort_by_alphabet -> {
+                adapterItems?.sortItems(SortBy.ALPHABET)
+                chosenIndex = 0
+                true
+            }
+            R.id.sort_by_cost -> {
+                adapterItems?.sortItems(SortBy.COST)
+                chosenIndex = 1
+                true
+            }
+            R.id.reset_sorting -> {
+                adapterItems?.resetSorting()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_currency, menu)
+        return true
+    }
 }
