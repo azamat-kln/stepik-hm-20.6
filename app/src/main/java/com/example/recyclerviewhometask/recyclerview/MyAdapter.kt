@@ -3,7 +3,6 @@ package com.example.recyclerviewhometask.recyclerview
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recyclerviewhometask.Data
@@ -12,7 +11,6 @@ import com.example.recyclerviewhometask.R
 import com.example.recyclerviewhometask.SortBy
 import com.example.recyclerviewhometask.dragdrop.ItemTouchDelegate
 import com.example.recyclerviewhometask.model.Item
-import com.google.android.material.textfield.TextInputLayout
 import java.io.Serializable
 import java.util.*
 
@@ -77,8 +75,8 @@ class MyAdapter(
         notifyDataSetChanged()
     }
 
-    override fun add(currency: Item.Currency, index: Int?) {
-        val sortingType: SortBy? = when (index) {
+    override fun add(currency: Item.Currency, chosenIndex: Int?) {
+        val sortingType: SortBy? = when (chosenIndex) {
             0 -> SortBy.ALPHABET
             1 -> SortBy.COST
             else -> null
@@ -106,6 +104,11 @@ class MyAdapter(
         notifyItemInserted(beforeAddBtn)
     }
 
+    override fun addByIndex(currency: Item.Currency, index: Int) {
+        currenciesAndButton.add(index, currency)
+        notifyItemInserted(index)
+    }
+
     override fun sortCurrencies(currencies: List<Item.Currency>, sortingType: SortBy) {
         val newList: List<Item.Currency> = when (sortingType) {
             SortBy.ALPHABET -> {
@@ -131,11 +134,12 @@ class MyAdapter(
         notifyDataSetChanged()
     }
 
-    override fun deleteItem(currency: Item.Currency) {
+    override fun deleteItem(currency: Item.Currency): Int {
         val removedIndex = currenciesAndButton.indexOf(currency)
         currenciesAndButton.remove(currency)
         notifyItemRemoved(removedIndex)
         notifyDataSetChanged()
+        return removedIndex
     }
 
     fun sortItemsBy(sortingType: SortBy) {

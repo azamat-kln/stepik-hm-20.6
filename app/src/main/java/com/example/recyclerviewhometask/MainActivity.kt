@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.*
@@ -15,15 +16,17 @@ import com.example.recyclerviewhometask.recyclerview.MyAdapter
 import com.example.recyclerviewhometask.swipe.LeftSwiped
 import com.google.android.material.snackbar.Snackbar
 
-class MainActivity : AppCompatActivity(), ItemTouchDelegate {
+class MainActivity : AppCompatActivity(), ItemTouchDelegate, DialogCallBack {
 
     private lateinit var myRecyclerView: RecyclerView
     private lateinit var adapterItems: MyAdapter
     private lateinit var myLayoutManager: LinearLayoutManager
     private lateinit var customToolbar: Toolbar
+    private lateinit var dialog: MyDialogFragment
     private var snapPosition = RecyclerView.NO_POSITION
     private var dragDropHelper: ItemTouchHelper? = null
     private var chosenIndex: Int? = null
+    private var indexOfRemovedItem = 0
     private lateinit var itemToDelete: Item.Currency
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,15 +72,14 @@ class MainActivity : AppCompatActivity(), ItemTouchDelegate {
     }
 
     private fun changeToolBarState(): (Item.Currency) -> Unit {
-        val changedToolbar: (Item.Currency) -> Unit = {
+        val changedToolbar: (Item.Currency) -> Unit = { currency ->
             customToolbar.title = "item selected"
             customToolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.grey_background))
             customToolbar.menu.findItem(R.id.delete_item).isVisible = true
             customToolbar.menu.findItem(R.id.sort_by).isVisible = false
             customToolbar.menu.findItem(R.id.reset_sorting).isVisible = false
 
-            itemToDelete = it
-            Log.i("MainActivity", "item: ${itemToDelete.amount} ${itemToDelete.currency}")
+            itemToDelete = currency
         }
         return changedToolbar
     }
@@ -140,14 +142,15 @@ class MainActivity : AppCompatActivity(), ItemTouchDelegate {
                 true
             }
             R.id.delete_item -> {
-                MyDialogFragment.newInstance(adapterItems, itemToDelete)
-                    .show(supportFragmentManager, null)
+                dialog = MyDialogFragment()
+                dialog.show(supportFragmentManager, null)
                 setDefaultToolbarState()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
+
     private fun setDefaultToolbarState() {
         customToolbar.apply {
             title = "Converter"
@@ -167,4 +170,22 @@ class MainActivity : AppCompatActivity(), ItemTouchDelegate {
         menuInflater.inflate(R.menu.menu_currency, menu)
         return true
     }
+
+    override fun onRemoveButtonClicked() {
+        indexOfRemovedItem = adapterItems.deleteItem(itemToDelete)
+        dialog.dismiss()
+    }
+
+    override fun showSnackBar() {
+        val mySnackBar = Snackbar.make(
+            findViewById(R.id.myCoordinatorLayout),
+            "Валюта удалена",
+            Snackbar.LENGTH_SHORT
+        )
+        mySnackBar.setAction("Вернуть") {
+            adapterItems.addByIndex(itemToDelete, indexOfRemovedItem)
+        }
+        mySnackBar.show()
+    }
+
 }
