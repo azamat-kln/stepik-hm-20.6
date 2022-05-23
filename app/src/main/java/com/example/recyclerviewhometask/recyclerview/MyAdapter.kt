@@ -1,10 +1,10 @@
 package com.example.recyclerviewhometask.recyclerview
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recyclerviewhometask.Data
 import com.example.recyclerviewhometask.ItemOperations
@@ -12,19 +12,22 @@ import com.example.recyclerviewhometask.R
 import com.example.recyclerviewhometask.SortBy
 import com.example.recyclerviewhometask.dragdrop.ItemTouchDelegate
 import com.example.recyclerviewhometask.model.Item
+import com.google.android.material.textfield.TextInputLayout
+import java.io.Serializable
 import java.util.*
 
 class MyAdapter(
     private val touchDelegateInterface: ItemTouchDelegate,
     private val addLambda: (Item.Currency) -> Unit,
-    private val scrollLambda: () -> Unit
+    private val scrollLambda: () -> Unit,
+    private val changeToolBar: (Item.Currency) -> Unit
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemOperations {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemOperations, Serializable {
 
     private val currenciesAndButton: MutableList<Item> = LinkedList()
 
     private fun onItemDrag(currencyViewHolder: CurrencyViewHolder) {
-        currencyViewHolder.itemView.findViewById<ImageView>(R.id.flag_IV)
+        currencyViewHolder.itemView.findViewById<TextView>(R.id.currency_tv)
             .setOnTouchListener { _, motionEvent ->
                 if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
                     touchDelegateInterface.startDragging(currencyViewHolder)
@@ -43,7 +46,10 @@ class MyAdapter(
             }
             else -> {
                 val currencyViewHolder =
-                    CurrencyViewHolder(inflater.inflate(R.layout.item_currency, parent, false))
+                    CurrencyViewHolder(
+                        inflater.inflate(R.layout.item_currency, parent, false),
+                        changeToolBar
+                    )
                 onItemDrag(currencyViewHolder)
                 currencyViewHolder
             }
@@ -72,70 +78,72 @@ class MyAdapter(
     }
 
     override fun add(currency: Item.Currency, index: Int?) {
-        when (index) {
-            0 -> {
-                addCurrency(currency, index)
+        val sortingType: SortBy? = when (index) {
+            0 -> SortBy.ALPHABET
+            1 -> SortBy.COST
+            else -> null
+        }
+        when (sortingType) {
+            SortBy.ALPHABET -> {
+                addItem(currency, sortingType)
             }
-            1 -> {
-                addCurrency(currency, index)
+            SortBy.COST -> {
+                addItem(currency, sortingType)
             }
-            else -> {
-                // add to last position, if sorting type is not selected yet
-                currenciesAndButton.add(currenciesAndButton.size - 1, currency)
-                notifyItemInserted(currenciesAndButton.size - 1)
-            }
+            else -> addCurrencyToEnd(currency)
         }
     }
 
-    private fun addCurrency(currency: Item.Currency, index: Int) {
-        val currencies = mutableListOf<Item.Currency>()
-        currenciesAndButton.forEach {
-            if (it is Item.Currency) {
-                currencies.add(it)
-            }
-        }
-        currencies.add((currency))
-
-        when (index) {
-            0 -> {
-                currencies.sortBy { it.currency }
-            }
-            1 -> {
-                currencies.sortBy { it.amount }
-            }
-        }
-
-        val sortedItem = mutableListOf<Item>()
-        sortedItem.addAll(0, currencies)
-        sortedItem.add(currenciesAndButton.last())
-
-        setItems(sortedItem)
+    private fun addItem(currency: Item.Currency, sortingType: SortBy) {
+        val currencyItems = returnOnlyCurrencies().toMutableList()
+        currencyItems.add(currency)
+        sortCurrencies(currencyItems, sortingType)
     }
 
-    override fun delete(adapterPosition: Int) {
-        currenciesAndButton.removeAt(adapterPosition)
+    private fun addCurrencyToEnd(currency: Item.Currency) {
+        val beforeAddBtn = currenciesAndButton.size - 1
+        currenciesAndButton.add(beforeAddBtn, currency)
+        notifyItemInserted(beforeAddBtn)
+    }
+
+    override fun sortCurrencies(currencies: List<Item.Currency>, sortingType: SortBy) {
+        val newList: List<Item.Currency> = when (sortingType) {
+            SortBy.ALPHABET -> {
+                currencies.sortedBy { it.currency }
+            }
+            SortBy.COST -> {
+                currencies.sortedBy { it.amount }
+            }
+        }
+        setSortedCurrencies(newList)
+    }
+
+    private fun setSortedCurrencies(sortedCurrencies: List<Item.Currency>) {
+        val items = mutableListOf<Item>()
+        items.addAll(0, sortedCurrencies)
+        items.add(Item.AddButton("Добавить", R.drawable.plus_image))
+        setItems(items)
+    }
+
+    override fun deleteItemAt(position: Int) {
+        currenciesAndButton.removeAt(position)
+        notifyItemRemoved(position)
         notifyDataSetChanged()
     }
 
-    override fun sortItems(sortingType: SortBy) {
-        val currencies = mutableListOf<Item.Currency>()
-        currenciesAndButton.forEach {
-            if (it is Item.Currency) {
-                currencies.add(it)
-            }
-        }
-
-        when (sortingType) {
-            SortBy.ALPHABET -> currencies.sortBy { it.currency }
-            SortBy.COST -> currencies.sortBy { it.amount }
-        }
-
-        val sortedCurrenciesAndButton = mutableListOf<Item>()
-        sortedCurrenciesAndButton.addAll(0, currencies)
-        sortedCurrenciesAndButton.add(currenciesAndButton.last())
-
-        setItems(sortedCurrenciesAndButton)
+    override fun deleteItem(currency: Item.Currency) {
+        val removedIndex = currenciesAndButton.indexOf(currency)
+        currenciesAndButton.remove(currency)
+        notifyItemRemoved(removedIndex)
+        notifyDataSetChanged()
     }
+
+    fun sortItemsBy(sortingType: SortBy) {
+        sortCurrencies(returnOnlyCurrencies(), sortingType)
+    }
+
+    private fun returnOnlyCurrencies(): List<Item.Currency> =
+        currenciesAndButton.dropLast(1) as List<Item.Currency>
 
     override fun resetSorting() {
         val originalItems: List<Item> = Data.elements

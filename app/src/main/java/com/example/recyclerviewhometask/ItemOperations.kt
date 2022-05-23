@@ -8,9 +8,11 @@ interface ItemOperations {
 
     fun add(currency: Item.Currency, index: Int?)
 
-    fun delete(adapterPosition: Int)
+    fun deleteItemAt(position: Int)
 
-    fun sortItems(sortingType: SortBy)
+    fun deleteItem(currency: Item.Currency)
+
+    fun sortCurrencies(currencies: List<Item.Currency>, sortingType: SortBy)
 
     fun resetSorting()
 }

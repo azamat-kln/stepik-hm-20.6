@@ -18,7 +18,7 @@ class LeftSwiped(private val adapter: MyAdapter?) : ItemTouchHelper.SimpleCallba
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        adapter?.delete(viewHolder.adapterPosition)
+        adapter?.deleteItemAt(viewHolder.adapterPosition)
     }
 
     override fun getSwipeDirs(
